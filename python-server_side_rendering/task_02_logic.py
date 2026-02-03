@@ -1,7 +1,8 @@
 from flask import Flask, render_template
 import json
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
 
 @app.route('/')
 def home():
@@ -17,13 +18,14 @@ def contact():
 
 @app.route('/items')
 def items():
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(base_dir, "items.json")
+
     try:
-        with open('items.json', 'r') as file:
+        with open(json_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
             items_list = data.get('items', [])
-    except FileNotFoundError:
-        items_list = []
-    except json.JSONDecodeError:
+    except (FileNotFoundError, json.JSONDecodeError):
         items_list = []
     
     return render_template('items.html', items=items_list)
